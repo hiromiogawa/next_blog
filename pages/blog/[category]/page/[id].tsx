@@ -1,18 +1,16 @@
-import { client } from '../../../../libs/client';
-import { PER_PAGE } from '../../../../components/Pagination';
-import { PageList } from '../../../../components/PageList';
-import { range } from '../../../../modules/utils';
+import { client } from '../../../../libs/client'
+import { PER_PAGE } from '../../../../components/Pagination'
+import { PageList } from '../../../../components/PageList'
+import { range } from '../../../../modules/utils'
 import type { GetStaticProps, GetStaticPaths } from 'next'
-import { blogsTypes, categoryType } from '../../../../types/types';
+import { blogsTypes, categoryType } from '../../../../types/types'
 
 interface props extends blogsTypes {
     totalCount: number
     currentPage: number
 }
 
-// pages/blog/[id].js
-export default function BlogPageId({ contents, totalCount, currentPage }: props) {
-    
+export default function BlogCategoryPageList({ contents, totalCount, currentPage }: props) {
     return (
     <main>
         <PageList contents={contents} totalCount={totalCount} currentPage={currentPage} />
@@ -20,10 +18,10 @@ export default function BlogPageId({ contents, totalCount, currentPage }: props)
     );
 }
 
-export const getAllCategoryPagePaths = async () => {
+export const getStaticPaths: GetStaticPaths = async () => {    
     const resCategory = await client.get({endpoint: 'categories'})
 
-    const paths: string[] = await Promise.all(
+    const resPaths = await Promise.all(
         resCategory.contents.map((category: categoryType) => {
             const result = client
             .get({
@@ -36,14 +34,11 @@ export const getAllCategoryPagePaths = async () => {
                 return range(1, Math.ceil(totalCount / PER_PAGE)).map((repo) => `/blog/${category.id}/page/${repo}`
                 )
             })
-            .catch((err) => console.log(err));
+    
             return result
         })
     )
-    return paths.flat()
-}
-export const getStaticPaths: GetStaticPaths = async () => {
-    const paths = await getAllCategoryPagePaths()
+    const paths = resPaths.flat()
     return { paths, fallback: false }
 }
 
@@ -52,7 +47,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async (context) => {
     const { params } = context
 
-    const id = context.params!.id;
+    const id = params!.id
 
     const data = await client.get({
         endpoint: 'blogs',

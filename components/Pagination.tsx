@@ -9,23 +9,7 @@ export const Pagination = ({ totalCount, currentPage }: {totalCount: number, cur
         <ul>
             {
                 range(1, Math.ceil(totalCount / PER_PAGE)).map((number, index) => {
-                    if (number === 1) {
-                        if (currentPage == 1) {
-                            return(
-                                <li key={index} className='currentPage'>
-                                    <span>{number}</span>
-                                </li>
-                            )
-                        } else {
-                            return(
-                                <li key={index}>
-                                    <Link href={ '/' }>
-                                        <a>{number}</a>
-                                    </Link>
-                                </li>
-                            )
-                        }
-                    } else if (number == currentPage) {
+                    if (number == currentPage) {
                         return(
                             <li key={index} className='currentPage'>
                                 <span>{number}</span>
